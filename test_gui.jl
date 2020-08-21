@@ -1,4 +1,4 @@
-using WhiskerTracking
+using WhiskerTracking, Gtk.ShortNames
 
 println("Whisker Tracking Loaded")
 
