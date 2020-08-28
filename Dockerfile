@@ -38,7 +38,7 @@ RUN chown root /usr/local/sbin/asEnvUser \
 # install Julia packages in /opt/julia instead of $HOME
 ENV JULIA_DEPOT_PATH=/opt/julia
 ENV JULIA_PKGDIR=/opt/julia
-ENV JULIA_VERSION=1.0.5
+ENV JULIA_VERSION=1.3.1
 
 #Install Julia
 RUN apt-get update \
@@ -67,6 +67,8 @@ RUN mkdir /opt/julia && \
 
 USER jovyan
 
+COPY precompile_whisker.jl /home/jovyan/precompile_whisker.jl
+
 ENV DISPLAY=":14"
 
 RUN sudo apt-get update && \
@@ -86,9 +88,10 @@ RUN sudo apt-get update && \
 
     && julia -e 'import Pkg; Pkg.update()' \
     && julia -e 'import Pkg; Pkg.add(["Gtk"]); Pkg.add(Pkg.PackageSpec(url="https://github.com/paulmthompson/WhiskerTracking.jl"))' \
-    && xvfb-run julia -e 'using WhiskerTracking' \
-
+    && julia -e 'import Pkg; Pkg.add(["PackageCompiler"])' \
     && sudo rm -rf /tmp/* /var/lib/apt/lists/* /root/.cache/*
+
+RUN xvfb-run julia -e 'using PackageCompiler; create_sysimage(:WhiskerTracking,sysimage_path="wt.so",precompile_execution_file="precompile_whisker.jl")'
 
 COPY test_gui.jl /home/jovyan/test_gui.jl
 USER root
@@ -97,4 +100,4 @@ RUN nvcc --version
 
 ENTRYPOINT ["/usr/local/sbin/asEnvUser"]
 
-CMD ["julia", "/home/jovyan/test_gui.jl"]
+CMD ["julia", "--sysimage", "wt.so", "/home/jovyan/test_gui.jl"]
