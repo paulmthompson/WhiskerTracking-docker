@@ -28,12 +28,6 @@ RUN echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf \
 # Cleanup
     && rm -rf /tmp/* /var/lib/apt/lists/* /root/.cache/*
 
-COPY asEnvUser /usr/local/sbin/
-
-# Only for sudoers
-RUN chown root /usr/local/sbin/asEnvUser \
-    && chmod 700  /usr/local/sbin/asEnvUser
-
 # Julia dependencies
 # install Julia packages in /opt/julia instead of $HOME
 ENV JULIA_DEPOT_PATH=/opt/julia
@@ -71,20 +65,16 @@ COPY precompile_whisker.jl /home/jovyan/precompile_whisker.jl
 
 ENV DISPLAY=":14"
 
+ENV PYTHON="Conda"
+
 RUN sudo apt-get update && \
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     libffi-dev \
     libgtk-3-dev \
-    libpython3-dev \
-    python3-pip \
-    python3-setuptools \
     xvfb \
     xauth \
     libvorbisenc2 \
     libxvidcore4 \
-
-    && sudo pip3 install wheel \
-    && sudo pip3 install sklearn \
 
     && julia -e 'import Pkg; Pkg.update()' \
     && julia -e 'import Pkg; Pkg.add(["Gtk"]); Pkg.add(Pkg.PackageSpec(url="https://github.com/paulmthompson/WhiskerTracking.jl"))' \
@@ -95,9 +85,5 @@ RUN xvfb-run julia -e 'using PackageCompiler; create_sysimage(:WhiskerTracking,s
 
 COPY test_gui.jl /home/jovyan/test_gui.jl
 USER root
-
-RUN nvcc --version
-
-ENTRYPOINT ["/usr/local/sbin/asEnvUser"]
 
 CMD ["julia", "--sysimage", "wt.so", "/home/jovyan/test_gui.jl"]
