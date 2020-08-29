@@ -69,11 +69,8 @@ ENV PYTHON="Conda"
 
 RUN sudo apt-get update && \
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    libffi-dev \
-    libgtk-3-dev \
     xvfb \
     xauth \
-    libvorbisenc2 \
     libxvidcore4 \
 
     && julia -e 'import Pkg; Pkg.update()' \
