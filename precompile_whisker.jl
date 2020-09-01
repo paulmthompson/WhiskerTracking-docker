@@ -1,5 +1,5 @@
 
-using WhiskerTracking, Gtk.ShortNames
+using WhiskerTracking, Gtk.ShortNames, Knet
 
 myhandles=make_gui();
 

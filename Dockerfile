@@ -75,7 +75,7 @@ RUN sudo apt-get update && \
 
     && julia -e 'import Pkg; Pkg.update()' \
     && julia -e 'import Pkg; Pkg.add(["Gtk"]); Pkg.add(Pkg.PackageSpec(url="https://github.com/paulmthompson/WhiskerTracking.jl"))' \
-    && julia -e 'import Pkg; Pkg.add(["PackageCompiler"])' \
+    && julia -e 'import Pkg; Pkg.add(["Knet", "PackageCompiler"])' \
     && sudo rm -rf /tmp/* /var/lib/apt/lists/* /root/.cache/*
 
 RUN xvfb-run julia -e 'using PackageCompiler; create_sysimage(:WhiskerTracking,sysimage_path="wt.so",precompile_execution_file="precompile_whisker.jl")'
@@ -83,4 +83,4 @@ RUN xvfb-run julia -e 'using PackageCompiler; create_sysimage(:WhiskerTracking,s
 COPY test_gui.jl /home/jovyan/test_gui.jl
 USER root
 
-CMD ["julia", "--sysimage", "wt.so", "/home/jovyan/test_gui.jl"]
+CMD ["julia", "--sysimage", "wt.so", "-p", "4", "/home/jovyan/test_gui.jl"]

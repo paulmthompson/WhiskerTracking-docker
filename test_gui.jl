@@ -1,7 +1,9 @@
-using WhiskerTracking, Gtk.ShortNames
+using Distributed
+@everywhere using WhiskerTracking, Gtk.ShortNames, Distributed, Knet
 
 println("Whisker Tracking Loaded")
 
+Knet.cuallocator()=false
 myhandles=make_gui();
 
 println("GUI Made")
